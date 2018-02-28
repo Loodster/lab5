@@ -23,13 +23,13 @@ public class EventQueue{
 	public Event getNextEvent() {
 		Event send = queue.get(0);
 		long start = queue.get(0).getStartTime();
-		queue.remove(send);
 		for(Event e : queue) {
 			if(e.getStartTime() < start) {
 				start = e.getStartTime();
 				send = e;
 			}
 		}
+		queue.remove(send);
 		return send;
 				
 	}
