@@ -7,10 +7,13 @@ import exceptions.AlreadyInQueueException;
 public class EventQueue{private Node header = new Node();
 	private int size = 0;
 
-	public EventQueue(StartEvent startEvent) {
+	public EventQueue(StartEvent startEvent, StopEvent stopEvent) {
 		Node start = new Node();
 		start.e = startEvent;
 		header.nextNode = start;
+		Node stop = new Node();
+		stop.e = stopEvent;
+		start.nextNode = stop;
 	}
 	
 	private class Node{
