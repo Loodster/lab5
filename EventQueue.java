@@ -4,34 +4,47 @@ import java.util.ArrayList;
 
 import exceptions.AlreadyInQueueException;
 
-public class EventQueue{
-	private ArrayList<Event> queue;
+public class EventQueue{private Node header = new Node();
+	private int size = 0;
+
 	public EventQueue(StartEvent startEvent) {
-		queue = new ArrayList<Event>();
-		queue.add(startEvent);
+		Node start = new Node();
+		start.e = startEvent;
+		header.nextNode = start;
 	}
-	/**
-	 * 
-	 * @param event
-	 */
-	public void addEvent(Event event) throws AlreadyInQueueException {
-		if(queue.contains(event)) {
+	
+	private class Node{
+		private Event e;
+		private Node nextNode = null;
+	}
+	public void addEvent(Event event) throws AlreadyInQueueException{
+		Node node = new Node();
+		node.e = event;
+		addNode(node,header);
+	}
+	
+	private void addNode(Node node, Node compare) throws AlreadyInQueueException{
+		if(compare.nextNode == null) {
+			compare.nextNode = node;
+		}
+		else {
+		if(compare.nextNode.e == node.e){
 			throw new AlreadyInQueueException();
 		}
-		queue.add(event);
-	}
-	public Event getNextEvent() {
-		Event send = queue.get(0);
-		long start = queue.get(0).getStartTime();
-		for(Event e : queue) {
-			if(e.getStartTime() < start) {
-				start = e.getStartTime();
-				send = e;
-			}
+		if(compare.nextNode.e.getStartTime()>node.e.getStartTime()){
+			node.nextNode = compare.nextNode;
+			compare.nextNode = node;
+			
 		}
-		queue.remove(send);
-		return send;
-				
+		else{
+			addNode(node,compare.nextNode);
+		}
+		}
+	}
+	public Event nextEvent() {
+		Event e = header.nextNode.e;
+		header.nextNode = header.nextNode.nextNode;
+		return e;
 	}
 	
 }
