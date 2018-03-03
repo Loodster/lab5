@@ -1,10 +1,10 @@
 package simulator;
 
 public abstract class StopEvent extends Event{
-	private final long stop = Long.MAX_VALUE;
+	private final double stop = Double.MAX_VALUE;
 
 	@Override
-	public long getStartTime() {
+	public double getStartTime() {
 		return stop;
 	}
 
