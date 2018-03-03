@@ -2,7 +2,7 @@ package Walmart;
 
 import java.util.Random;
 
-import Simulator.AlreadyInQueueException;
+import exceptions.AlreadyInQueueException;
 import Simulator.Event;
 import Simulator.EventQueue;
 import Walmart.PickUpGoodsEvent;
@@ -10,7 +10,7 @@ import Walmart.WalmartState;
 
 public class EnterStoreEvent extends Event {
 	
-	private long startTime;
+	private double startTime;
 	private WalmartState state;
 	private int customerID = 0; 
 	private static Random timeFrame = new Random(); 
@@ -22,7 +22,7 @@ public class EnterStoreEvent extends Event {
 	}
 
 	@Override
-	public void runEvent(EventQueue queue) {
+	public void runEvent(EventQueue queue){
 		if (state.isClosed() == false) {
 			if (state.isFull() == false) {    //denna kommer döpas om i state
 				customerID++; 
@@ -37,10 +37,9 @@ public class EnterStoreEvent extends Event {
 	}
 
 	@Override
-	public long getStartTime() {
+	public double getStartTime() {
 		return startTime;
 		
 	}
 
 }
-
