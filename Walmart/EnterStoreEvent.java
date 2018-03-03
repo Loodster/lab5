@@ -16,7 +16,7 @@ public class EnterStoreEvent extends Event {
 	private static Random timeFrame = new Random(); 
 	
 	
-	public EnterStoreEvent(WalmartState state, long startTime) {
+	public EnterStoreEvent(WalmartState state, double startTime) {
 		this.startTime = startTime;
 		this.state = state;
 	}
