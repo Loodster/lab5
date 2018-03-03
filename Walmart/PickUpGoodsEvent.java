@@ -13,7 +13,7 @@ public class PickUpGoodsEvent extends Event {
 	private double startTime;
 	
 	
-	public PickUpGoodsEvent(int customerID, WalmartState state, long startTime) {
+	public PickUpGoodsEvent(int customerID, WalmartState state, double startTime) {
 		this.customerID = customerID;
 		this.state = state;
 		this.startTime = startTime;
