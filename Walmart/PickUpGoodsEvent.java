@@ -3,13 +3,14 @@ package Walmart;
 import Walmart.WalmartState;
 import Simulator.Event;
 import Simulator.EventQueue;
+//import next event
 
 
 public class PickUpGoodsEvent extends Event {
 	
 	private int customerID;
 	private WalmartState state;
-	private long startTime;
+	private double startTime;
 	
 	
 	public PickUpGoodsEvent(int customerID, WalmartState state, long startTime) {
@@ -22,13 +23,14 @@ public class PickUpGoodsEvent extends Event {
 
 	@Override
 	public void runEvent(EventQueue queue) {
-		// TODO Auto-generated method stub
+		state.pickup(customerID, startTime);
+		//skapa objekt och kalla på nästa event, tror man ska kunna gå in utan att handla(?)
 		
 	}
 
 
 	@Override
-	public long getStartTime() {
+	public double getStartTime() {
 		// TODO Auto-generated method stub
 		return startTime;
 	}
