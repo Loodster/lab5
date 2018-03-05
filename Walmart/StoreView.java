@@ -19,7 +19,7 @@ public class StoreView extends View{
 		case START:
 			print = print + "PARAMETRAR" + 
 		        "\n" + "==========" + 
-			"\n" + "Antal kassor, " + "N: " + state.getcashRegisters() +
+			"\n" + "Antal kassor, " + "N: " + state.getCashRegisters() +
 			"\n" + "Max som ryms, M: " + state.getMax() +
 			"\n" + "Ankomsthastighet, lambda: " + "1.0" + //ändrar till parameterar
 			"\n" + "Plocktider, [P_min..Pmax]: " + "[0.5..1.0]" +//
