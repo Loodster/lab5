@@ -22,11 +22,13 @@ public abstract class WalmartState extends State {
 			this.closed = closed;
 		}
 	}
+	
+	
 	//Current state of the store
 	private State state = State.OPEN;
 	
 	//Event info
-	private String currentEvent;
+	private EventType currentEvent;
 	private int currentCustomer;
 	
 	//Customers
@@ -54,8 +56,8 @@ public abstract class WalmartState extends State {
 	 * @param newTime the time the current event is taking place
 	 * @return the state of the store when the customer tried to enter the store
 	 */
-	public State arrival(int customerID, double newTime){
-		updateListener("Arrival", customerID, newTime);
+	public State arrival(int customerID, double newTime, EventType event){
+		updateListener(event, customerID, newTime);
 		switch(state){
 			case OPEN:
 				customerCount++;
@@ -81,8 +83,8 @@ public abstract class WalmartState extends State {
 	 * @param customerID id of the customer 
 	 * @param newTime the time the current event is taking place
 	 */
-	public void pickup(int customerID, double newTime){
-			updateListener("Picking wares", customerID, newTime);
+	public void pickup(int customerID, double newTime, EventType event){
+			updateListener(event, customerID, newTime);
 			registers.useOne(customerID);
 		}
 	/**
@@ -91,9 +93,9 @@ public abstract class WalmartState extends State {
 	 * @param newTime the time the event is taking place
 	 * @return boolean saying if the person succeeded in paying.
 	 */
-	public boolean checkout(int customerID, double newTime){
+	public boolean checkout(int customerID, double newTime, EventType event){
 		if(registers.doneUsing(customerID)) {
-			updateListener("Checkout", customerID, newTime);
+			updateListener(event, customerID, newTime);
 			inStore--;
 			if(state == State.FULL) {
 				state = State.OPEN;
@@ -103,7 +105,7 @@ public abstract class WalmartState extends State {
 		return false;
 	}
 	
-	private void updateListener(String event, int customerID, double newTime) {
+	private void updateListener(EventType event, int customerID, double newTime) {
 		calculateTimeWasting(newTime);		
 		currentTime = newTime;
 		currentEvent = event;
@@ -153,4 +155,9 @@ public abstract class WalmartState extends State {
 	public boolean isFull(){
 		return state == State.FULL;
 	}
+	
+	public EventType getEvent() {
+		return currentEvent;
+	}
+	
 }
