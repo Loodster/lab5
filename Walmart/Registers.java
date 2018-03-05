@@ -1,4 +1,4 @@
-package Store;
+package Walmart;
 
 import java.util.ArrayList;
 
