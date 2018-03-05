@@ -18,7 +18,7 @@ public class StoreClosingEvent extends Event{
 
 	@Override
 	public void runEvent(EventQueue queue) {
-		state.isClosed();
+		state.closeStore();
 		
 	}
 
