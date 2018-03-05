@@ -1,6 +1,6 @@
 package exceptions;
 
-public class AlreadyInQueueException extends Exception {
+public class AlreadyInQueueException extends RuntimeException {
 	
 	public AlreadyInQueueException(){
 		super();
