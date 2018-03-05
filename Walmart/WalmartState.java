@@ -160,4 +160,26 @@ public abstract class WalmartState extends State {
 		return currentEvent;
 	}
 	
+	public double getcurrentTime() {
+		return currentTime;
+	}
+	public int getCurrentCustomer() {
+		return currentCustomer;
+	}
+	public int getMissedCustomer() {
+		return missedCustomer;
+	}
+	public int getFreeRegisters() {
+		return registers.freeRegisters();
+	}
+	public int getQueueSize() {
+		return registers.queueSize();
+	}
+	public int getCashRegisters() {
+		return cashRegisters;
+	}
+	public int getMax() {
+		return max;
+	}
+	
 }
