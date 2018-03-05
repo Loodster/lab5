@@ -8,7 +8,6 @@ import simulator.State;
 
 
 public abstract class WalmartState extends State {
-	
 	/**
 	 * enum representing the state the store is in and 
 	 * if that state means the store is closed
@@ -16,29 +15,37 @@ public abstract class WalmartState extends State {
 	 * @author Michael 
 	 * 
 	 */
-	public static enum StoreState{
+	public enum State{
 		CLOSED(true),OPEN(false),FULL(false);
 		private boolean closed;
-		StoreState(boolean closed) {
+		State(boolean closed) {
 			this.closed = closed;
 		}
-		
 	}
+	//Current state of the store
+	private State state = State.OPEN;
 	
+	//Event info
 	private String currentEvent;
-	private int inStore = 0;
-	private int customerCount  = 0;
-	private int max = 250;
-	private double Kmin = 0.5;
-	private int missedCustomer = 0;
-	private int registersInUse = 0;
 	private int currentCustomer;
-	private int cashRegisters = 4;
+	
+	//Customers
+	private int inStore = 0;//number of customers in store
+	private int customerCount  = 0;//Total number of visits
+	private int max = 250;//Maximum number of customer in store
+	private int missedCustomer = 0;// Number of missed customers
+	
+	//Register and queue
+	private final int cashRegisters = 4;
+	private Registers registers = new Registers(cashRegisters);
 	private ArrayList<Integer> registerQueue = new ArrayList<Integer>();
+	
+	//Time
 	private double currentTime = 0;
-	private StoreState state = StoreState.OPEN;
 	private double freeTime = 0;
 	private double queueTime = 0;
+	
+	
 	/**
 	 * A customer is trying to enter enter the store and 
 	 * returns the state the store is in when 
@@ -47,41 +54,27 @@ public abstract class WalmartState extends State {
 	 * @param newTime the time the current event is taking place
 	 * @return the state of the store when the customer tried to enter the store
 	 */
-	public StoreState arrival(int customerID, double newTime){
-			
-			calculateTimeWasting(newTime);
-			
-			currentTime = newTime;
-			currentEvent = "arrival";
-			currentCustomer = customerID;
-			
-			setChanged();
-			notifyObservers();
-			
-			switch(state){
-				case OPEN:
-					customerCount++;
-					inStore++;
-					if(inStore == max){
-						state = StoreState.FULL;
-						return StoreState.OPEN;
-					
-					}else{
-						return state;
-					}
-				case FULL:
-					missedCustomer++;
-					customerCount++;
-					return state;
-					
-				case CLOSED:
-					return state;
+	public State arrival(int customerID, double newTime){
+		updateListener("Arrival", customerID, newTime);
+		switch(state){
+			case OPEN:
+				customerCount++;
+				inStore++;
+				if(inStore == max){
+					state = State.FULL;
+					return State.OPEN;
+				}
+			case FULL:
+				missedCustomer++;
+				customerCount++;
 				
-			}throw new NullPointerException();
+			case CLOSED:
+				return state;
 			
-			
-			
-		}
+		}throw new NullPointerException();			
+	}
+	
+	
 	/**
 	 * Method representing a customer picking up wares and the going to the
 	 * register to paying.
@@ -89,21 +82,8 @@ public abstract class WalmartState extends State {
 	 * @param newTime the time the current event is taking place
 	 */
 	public void pickup(int customerID, double newTime){
-			
-			calculateTimeWasting(newTime);
-			
-			currentTime = newTime;
-			currentEvent = "Pickup";
-			currentCustomer = customerID;
-			
-			setChanged();
-			notifyObservers();
-			
-			if(cashRegisters == registersInUse){
-				registerQueue.add(customerID);
-			}else{
-				registersInUse++;
-			}
+			updateListener("Picking wares", customerID, newTime);
+			registers.useOne(customerID);
 		}
 	/**
 	 * A customer tries to pay for wares
@@ -112,49 +92,36 @@ public abstract class WalmartState extends State {
 	 * @return boolean saying if the person succeeded in paying.
 	 */
 	public boolean checkout(int customerID, double newTime){
-		if(!registerQueue.contains(customerID)){
-			
-			calculateTimeWasting(newTime);
-			
-			currentTime = newTime;
-			currentEvent = "Checkout";
-			currentCustomer = customerID;
-			
-			setChanged();
-			notifyObservers();
-			
-			if(registerQueue.size()> 0){
-				registerQueue.remove(0);
-			}else{
-				registersInUse--;
+		if(registers.doneUsing(customerID)) {
+			updateListener("Checkout", customerID, newTime);
+			inStore--;
+			if(state == State.FULL) {
+				state = State.OPEN;
 			}
-			
+			return true;
 		}
 		return false;
 	}
-
+	
+	private void updateListener(String event, int customerID, double newTime) {
+		calculateTimeWasting(newTime);		
+		currentTime = newTime;
+		currentEvent = event;
+		currentCustomer = customerID;
+		setChanged();
+		notifyObservers();
+	}
 	
 	private void calculateTimeWasting(double newTime){
 		double timeMod = newTime - currentTime;
-		if(registerQueue.size() > 0){
-			queueTime += timeMod * registerQueue.size();
-			
-		}else{
-			freeTime += timeMod * (cashRegisters - registersInUse); 
-		}
-	}
-	/**
-	 * Returns if given customer is in the register queue
-	 * @param customerID id of a given customer
-	 * @return if the customer is in the queue
-	 */
-	public boolean isInQueue(int customerID) {
-		return registerQueue.contains(customerID);
+		queueTime += timeMod * registers.getQueueSize();	
+		freeTime += timeMod * registers.freeRegisters(); 
 	}
 	/**
 	 * Closes the store
 	 */
 	public void closeStore(){
+		state = State.CLOSED;
 	}
 	// Getters below
 	
@@ -184,8 +151,6 @@ public abstract class WalmartState extends State {
 	 * @return logical answer to the question is the store full
 	 */
 	public boolean isFull(){
-		return state == StoreState.FULL;
+		return state == State.FULL;
 	}
-	
-	
 }
