@@ -1,8 +1,8 @@
-package Store;
+package Walmart;
 
 import java.util.Observable;
 
-import simulator.View;
+import Simulator.View;
 
 public class StoreView extends View{
 	
@@ -17,10 +17,28 @@ public class StoreView extends View{
 		String print = "";
 		switch(state.getEvent()) {
 		case START:
+			print = print + "PARAMETRAR" + 
+		    "\n" + "==========" + 
+			"\n" + "Antal kassor, " + "N: " + state.getcashRegisters() +
+			"\n" + "Max som ryms, M: " + state.getMax() +
+			"\n" + "Ankomsthastighet, lambda: " + "1.0" + //ändrar till parameterar
+			"\n" + "Plocktider, [P_min..Pmax]: " + "[0.5..1.0]" +//
+			"\n" + "Betaltider, [K_min..Kmax]: " + "[2.0..3.0]" + //
+			"\n" + "Frö, f: " + "1234" +//
+			"\n" +
+			"\n" + "FÖRLOPP" +
+			"\n" + "==========" +
+			"\n"+ "\t" + "Tid " + " Kund " + " ? " + " led " + "\t" + " ledT "+ "\t" +
+			" I " +" \t" + " $" + "\t" + ":-(" + "\t" + "köat" + "\t" + "köT" +
+			"\t" + "köar" + "\n" + "[Kassakö..]";
+			
+			
+			print = print + state.getCurrentTime();
 		case STOP:
 		case CLOSE:
 		default:
-			// g�ra mest
+			// göra mest
 		}
+		System.out.println(print);
 	}
 }
