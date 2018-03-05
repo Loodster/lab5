@@ -22,6 +22,9 @@ public class Registers{
 	public void useOne(int customerID) {
 		if(!isUsing(customerID)) {
 			if(inUse() == total) {
+				if(queue.contains(customerID)) {
+					throw new AlreadyInQueueException();
+				}
 				queue.add(customerID);
 			}
 			else {
