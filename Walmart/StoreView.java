@@ -18,7 +18,7 @@ public class StoreView extends View{
 		switch(state.getEvent()) {
 		case START:
 			print = print + "PARAMETRAR" + 
-		    "\n" + "==========" + 
+		        "\n" + "==========" + 
 			"\n" + "Antal kassor, " + "N: " + state.getcashRegisters() +
 			"\n" + "Max som ryms, M: " + state.getMax() +
 			"\n" + "Ankomsthastighet, lambda: " + "1.0" + //ändrar till parameterar
