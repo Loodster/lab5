@@ -1,4 +1,4 @@
-package Store;
+package Walmart;
 
 import exceptions.AlreadyInQueueException;
 import simulator.Event;
