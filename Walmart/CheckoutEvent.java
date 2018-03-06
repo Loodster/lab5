@@ -1,28 +1,26 @@
 package Walmart;
 
-import exceptions.AlreadyInQueueException;
+
 import simulator.Event;
 import simulator.EventQueue;
 
 public class CheckoutEvent extends Event {
-	
+	private final EventType type = EventType.CHECKOUT;
 	private double startTime;
-	private StoreState storeState;
+	private StoreState state;
 	private int customerID;
 	
-	public CheckoutEvent(StoreState storeState,double startTime, int customerID) {
-		this.storeState = storeState;
+	public CheckoutEvent(StoreState state,double startTime, int customerID) {
+		this.state = state;
 		this.startTime = startTime;
 		this.customerID = customerID;
 	}
 	
 	@Override
 	public void runEvent(EventQueue queue) {
-		if(storeState.checkout(customerID, startTime)) {
-			//This customer has is now done? maybe change what does what?
-		}else {
-			//change start time here.
-			queue.addEvent(this);
+		int idInQueue = (state.checkout(customerID, startTime,type));
+		if(idInQueue != -1){
+			queue.addEvent(new CheckoutEvent(state,startTime+state.getRandomPayTime(),idInQueue));
 		}
 
 	}
