@@ -1,8 +1,9 @@
 package Walmart;
 
 import java.util.ArrayList;
-
+import exceptions.AlreadyInQueueException;
 import exceptions.AlreadyUsingRegisterException;
+import exceptions.NotAtRegisterException;
 import exceptions.NotInQueueException;
 
 public class Registers{
@@ -19,27 +20,32 @@ public class Registers{
 		}
 	}
 	
-	public void useOne(int customerID) {
+	public boolean useOne(int customerID) {
 		if(!isUsing(customerID)) {
 			if(inUse() == total) {
 				if(queue.contains(customerID)) {
 					throw new AlreadyInQueueException();
 				}
 				queue.add(customerID);
+				return false;
 			}
 			else {
-				for(int i = 0; i<total; i++) {
-					if(inUse[i] == notInUse) {
-						inUse[i] = customerID;
-						break;
-					}
-				}
+				useRegister(customerID);
+				return true;
 			}
-		}else{
-			throw new AlreadyUsingRegisterException();
 		}
+		throw new AlreadyUsingRegisterException();
+
 	}
 	
+	private void useRegister(int customerID) {
+		for(int i = 0; i<total; i++) {
+			if(inUse[i] == notInUse) {
+				inUse[i] = customerID;
+				return;
+			}
+		}
+	}
 	
 	private int inUse() {
 		int using = 0;
@@ -51,20 +57,19 @@ public class Registers{
 		return using;
 	}
 	
-	public boolean doneUsing(int customerID) {
+	public int doneUsing(int customerID) {
 		if(isUsing(customerID)) {
 			if(!queue.isEmpty()) {
-				inUse[getIndex(customerID)] = queue.get(0);
+				int idInQueue = queue.get(0);
+				inUse[getIndex(customerID)] = idInQueue;
 				queue.remove(0);
+				return idInQueue;
 			}else {
 				inUse[getIndex(customerID)] = notInUse;
+				return -1;
 			}
-			return true;
 		}else {
-			if(!queue.contains(customerID)) {
-				throw new NotInQueueException();
-			}
-			return false;
+			throw new NotAtRegisterException();
 		}
 	}
 	
@@ -97,7 +102,7 @@ public class Registers{
 		return false;
 	}
 	
-	public int getQueueSize() {
+	public int queueSize() {
 		return queue.size();
 	}
 	
