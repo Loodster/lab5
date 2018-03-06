@@ -34,19 +34,35 @@ public abstract class WalmartState extends State {
 	//Customers
 	private int inStore = 0;//number of customers in store
 	private int customerCount  = 0;//Total number of visits
-	private int max = 250;//Maximum number of customer in store
+	private int max = 5;//Maximum number of customer in store
 	private int missedCustomer = 0;// Number of missed customers
 	
 	//Register and queue
-	private final int cashRegisters = 4;
-	private Registers registers = new Registers(cashRegisters);
-	private ArrayList<Integer> registerQueue = new ArrayList<Integer>();
+	private final int cashRegisters = 2;
+	private Registers registers;
 	
 	//Time
 	private double currentTime = 0;
 	private double freeTime = 0;
 	private double queueTime = 0;
+	private double closingTime = 10;
 	
+	//Random time
+	private double lambda = 1.0;
+	private final double pickMin = 0.5;
+	private final double pickMax = 1.0;
+	private final double payMin = 2.0;
+	private final double payMax = 3.0;
+	private final long seed = 1234;
+	
+	private ExponentialRandomStream arrivalGen = new ExponentialRandomStream(lambda,seed); 
+	private UniformRandomStream pickGen = new UniformRandomStream(pickMin,pickMax,seed);
+	private UniformRandomStream payGen = new UniformRandomStream(payMin,payMax,seed);
+	
+	
+	public StoreState() {
+		registers = new Registers(cashRegisters);
+	}
 	
 	/**
 	 * A customer is trying to enter enter the store and 
@@ -66,10 +82,10 @@ public abstract class WalmartState extends State {
 					state = State.FULL;
 					return State.OPEN;
 				}
+				return state;
 			case FULL:
 				missedCustomer++;
 				customerCount++;
-				
 			case CLOSED:
 				return state;
 			
@@ -83,9 +99,9 @@ public abstract class WalmartState extends State {
 	 * @param customerID id of the customer 
 	 * @param newTime the time the current event is taking place
 	 */
-	public void pickup(int customerID, double newTime, EventType event){
+	public boolean pickup(int customerID, double newTime, EventType event){
 			updateListener(event, customerID, newTime);
-			registers.useOne(customerID);
+			return registers.useOne(customerID);
 		}
 	/**
 	 * A customer tries to pay for wares
@@ -93,18 +109,16 @@ public abstract class WalmartState extends State {
 	 * @param newTime the time the event is taking place
 	 * @return boolean saying if the person succeeded in paying.
 	 */
-	public boolean checkout(int customerID, double newTime, EventType event){
-		if(registers.doneUsing(customerID)) {
-			updateListener(event, customerID, newTime);
-			inStore--;
-			if(state == State.FULL) {
-				state = State.OPEN;
-			}
-			return true;
+	public int checkout(int customerID, double newTime, EventType event){
+		updateListener(event, customerID, newTime);
+		int id = registers.doneUsing(customerID);
+		inStore--;
+		if(state == State.FULL) {
+			state = State.OPEN;
 		}
-		return false;
+		return id;
 	}
-	
+
 	private void updateListener(EventType event, int customerID, double newTime) {
 		calculateTimeWasting(newTime);		
 		currentTime = newTime;
@@ -112,35 +126,46 @@ public abstract class WalmartState extends State {
 		currentCustomer = customerID;
 		setChanged();
 		notifyObservers();
+		int i = (int) (currentTime * 100);
+		double x = i/(double)100;
+		System.out.println( x+ "  "+currentEvent.name() + " " + freeTime);
+	}
+	
+	private void updateListener(EventType event, double newTime) {
+		calculateTimeWasting(newTime);		
+		currentTime = newTime;
+		currentEvent = event;
+		setChanged();
+		notifyObservers();
+		System.out.println(currentTime + "  " +event.name() + " " + freeTime);
 	}
 	
 	private void calculateTimeWasting(double newTime){
 		double timeMod = newTime - currentTime;
-		queueTime += timeMod * registers.getQueueSize();	
-		freeTime += timeMod * registers.freeRegisters(); 
+		queueTime += timeMod * registers.queueSize();
+		if(!(inStore==0)||!state.closed){
+			freeTime += timeMod * registers.freeRegisters();
+		}
 	}
+	
 	/**
 	 * Closes the store
 	 */
-	public void closeStore(){
+	public void closeStore(EventType event,double newTime){
+		updateListener(event, newTime);
 		state = State.CLOSED;
 	}
+	
 	// Getters below
 	
 	/**
 	 * returns the number of customers in store currently
 	 * @return inStore number of customers in the store
 	 */
-	public int customersInStore(){
+	public int getInStore(){
 		return inStore;
 	}
-	/**
-	 * Returns how many customers have visited the store in total
-	 * @return customerCount the total number of store visits
-	 */
-	public int totalCustomers(){
-		return customerCount;
-	}
+	
 	/**
 	 * returns if the store is closed 
 	 * @return closed boolean representing if the store is closed or not
@@ -155,31 +180,87 @@ public abstract class WalmartState extends State {
 	public boolean isFull(){
 		return state == State.FULL;
 	}
-	
+
 	public EventType getEvent() {
 		return currentEvent;
 	}
 	
-	public double getcurrentTime() {
+	public double getCurrentTime() {
 		return currentTime;
 	}
+	
 	public int getCurrentCustomer() {
 		return currentCustomer;
 	}
+	
 	public int getMissedCustomer() {
 		return missedCustomer;
 	}
+	
 	public int getFreeRegisters() {
 		return registers.freeRegisters();
 	}
+	
 	public int getQueueSize() {
 		return registers.queueSize();
 	}
+	
 	public int getCashRegisters() {
 		return cashRegisters;
 	}
+	
 	public int getMax() {
 		return max;
+	}
+
+	public int getCustomerCount() {
+		return customerCount;
+	}
+	
+	public double getFreeTime() {
+		return freeTime;
+	}
+
+	public double getQueueTime() {
+		return queueTime;
+	}
+
+	public double getLambda() {
+		return lambda;
+	}
+
+	public double getPickMin() {
+		return pickMin;
+	}
+
+	public double getPickMax() {
+		return pickMax;
+	}
+
+	public double getPayMin() {
+		return payMin;
+	}
+
+	public double getPayMax() {
+		return payMax;
+	}
+
+	public long getSeed() {
+		return seed;
+	}
+	
+	public double getClosingTime() {
+		return closingTime;
+	}
+	
+	public double getRandomArrivalTime() {
+		return arrivalGen.next();
+	}
+	public double getRandomPickTime() {
+		return pickGen.next();
+	}
+	public double getRandomPayTime() {
+		return payGen.next();
 	}
 	
 }
