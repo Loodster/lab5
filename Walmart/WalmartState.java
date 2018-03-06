@@ -126,9 +126,6 @@ public abstract class WalmartState extends State {
 		currentCustomer = customerID;
 		setChanged();
 		notifyObservers();
-		int i = (int) (currentTime * 100);
-		double x = i/(double)100;
-		System.out.println( x+ "  "+currentEvent.name() + " " + freeTime);
 	}
 	
 	private void updateListener(EventType event, double newTime) {
@@ -137,7 +134,6 @@ public abstract class WalmartState extends State {
 		currentEvent = event;
 		setChanged();
 		notifyObservers();
-		System.out.println(currentTime + "  " +event.name() + " " + freeTime);
 	}
 	
 	private void calculateTimeWasting(double newTime){
