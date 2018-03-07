@@ -1,4 +1,4 @@
-package Walmart;
+package store;
 
 import java.util.ArrayList;
 import exceptions.AlreadyInQueueException;
@@ -8,15 +8,16 @@ import exceptions.NotInQueueException;
 
 public class Registers{
 	private final int total; // number of registers
-	private int[] inUse; //customers using a register
+	private int[] registers; //customers using a register
 	private final int notInUse = -1; //value representing free register
 	private ArrayList<Integer> queue = new ArrayList<Integer>();// Queue to registers
+	private int stodInQueue = 0;
 	
 	public Registers(int total) {
 		this.total = total;
-		inUse =  new int[total];
+		registers =  new int[total];
 		for(int i = 0; i<total;i++) {
-			inUse[i] = notInUse;
+			registers[i] = notInUse;
 		}
 	}
 	
@@ -27,6 +28,7 @@ public class Registers{
 					throw new AlreadyInQueueException();
 				}
 				queue.add(customerID);
+				stodInQueue++;
 				return false;
 			}
 			else {
@@ -40,8 +42,8 @@ public class Registers{
 	
 	private void useRegister(int customerID) {
 		for(int i = 0; i<total; i++) {
-			if(inUse[i] == notInUse) {
-				inUse[i] = customerID;
+			if(registers[i] == notInUse) {
+				registers[i] = customerID;
 				return;
 			}
 		}
@@ -49,7 +51,7 @@ public class Registers{
 	
 	private int inUse() {
 		int using = 0;
-		for(int i: inUse) {
+		for(int i: registers) {
 			if(i != notInUse) {
 				using++;
 			}
@@ -61,11 +63,11 @@ public class Registers{
 		if(isUsing(customerID)) {
 			if(!queue.isEmpty()) {
 				int idInQueue = queue.get(0);
-				inUse[getIndex(customerID)] = idInQueue;
+				registers[getIndex(customerID)] = idInQueue;
 				queue.remove(0);
 				return idInQueue;
 			}else {
-				inUse[getIndex(customerID)] = notInUse;
+				registers[getIndex(customerID)] = notInUse;
 				return -1;
 			}
 		}else {
@@ -75,7 +77,7 @@ public class Registers{
 	
 	private int getIndex(int customerID)  {
 		for(int i = 0; i<total; i++) {
-			if (inUse[i]==customerID) {
+			if (registers[i]==customerID) {
 				return i;
 			}
 		}
@@ -84,7 +86,7 @@ public class Registers{
 	
 	public int freeRegisters() {
 		int number = 0;
-		for(int reg: inUse) {
+		for(int reg: registers) {
 			if(reg == notInUse) {
 				number++;			
 			}
@@ -94,7 +96,7 @@ public class Registers{
 	
 	
 	private boolean isUsing(int customerID) {
-		for(int i: inUse) {
+		for(int i: registers) {
 			if(i == customerID) {
 				return true;
 			}
@@ -106,5 +108,20 @@ public class Registers{
 		return queue.size();
 	}
 	
+	public int registers() {
+		return registers.length;
+	}
+
+	public int[] queue() {
+		int[] ret = new int[queue.size()];
+		for(int i = 0; i<queue.size();i++) {
+			ret[i] = queue.get(0);
+		}
+		return ret;
+	}
+	
+	public int stodInQueue() {
+		return stodInQueue;
+	}
 	
 }
