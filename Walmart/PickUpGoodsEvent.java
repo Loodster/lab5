@@ -1,30 +1,30 @@
-package Walmart;
+package store;
 
-import Walmart.WalmartState;
-import Simulator.Event;
-import Simulator.EventQueue;
-//import next event
-
+import simulator.Event;
+import simulator.EventQueue;
 
 public class PickUpGoodsEvent extends Event {
-	
+
+	private final EventType event = EventType.PICKUP;
 	private int customerID;
-	private WalmartState state;
+	private StoreState state;
 	private double startTime;
+	private Simulator sim;
 	
-	
-	public PickUpGoodsEvent(int customerID, WalmartState state, double startTime) {
+	public PickUpGoodsEvent(Simulator sim, StoreState state, double startTime,int customerID) {
 		this.customerID = customerID;
 		this.state = state;
 		this.startTime = startTime;
+		this.sim = sim;
 		
 	}
 
-
 	@Override
 	public void runEvent(EventQueue queue) {
-		state.pickup(customerID, startTime);
-		//skapa objekt och kalla p√• n√§sta event, tror man ska kunna g√• in utan att handla(?)
+		if(state.pickup(customerID, startTime,event)) {
+			queue.addEvent(new CheckoutEvent(sim,state,startTime+sim.getRandomPayTime(),customerID));
+		}
+		//skapa objekt och kalla pÂ n‰sta event, tror man ska kunna gÂ in utan att handla(?)
 		
 	}
 

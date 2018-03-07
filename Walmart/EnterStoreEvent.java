@@ -1,45 +1,45 @@
-package Walmart;
-
-import java.util.Random;
+package store;
 
 import exceptions.AlreadyInQueueException;
-import Simulator.Event;
-import Simulator.EventQueue;
-import Walmart.PickUpGoodsEvent;
-import Walmart.WalmartState;
+import simulator.Event;
+import simulator.EventQueue;
 
 public class EnterStoreEvent extends Event {
+	private final EventType type = EventType.ARRIVAL;
 	
 	private double startTime;
-	private WalmartState state;
-	private int customerID = 0; 
-	private static Random timeFrame = new Random(); 
+	private StoreState state;
+	private static int nextID = 0; 
+	private int cusomterID;
+	private Simulator sim;
 	
 	
-	public EnterStoreEvent(WalmartState state, double startTime) {
+	public EnterStoreEvent(Simulator sim,StoreState state, double startTime) {
 		this.startTime = startTime;
 		this.state = state;
+		this.sim = sim;
+		cusomterID = nextID;
+		nextID++;
 	}
 
 	@Override
-	public void runEvent(EventQueue queue){
-		if (state.isClosed() == false) {
-			if (state.isFull() == false) {    //denna kommer döpas om i state
-				customerID++; 
-				PickUpGoodsEvent nextEvent = new PickUpGoodsEvent(customerID, state, startTime + timeFrame.nextLong()); //använd håkans random annars blir han ledsen
-				queue.addEvent(nextEvent); 
-				
-			}
-			EnterStoreEvent thisEvent = new EnterStoreEvent(state, startTime + timeFrame.nextLong());
-			queue.addEvent(thisEvent);			//skapar en ny ankomsthändelse som läggs till i listan
+	public void runEvent(EventQueue queue) {
+		switch(state.arrival(cusomterID, startTime,type)) {
+		case OPEN:
+			PickUpGoodsEvent nextEvent = new PickUpGoodsEvent(sim,state, startTime+sim.getRandomPickTime(),cusomterID);
+			queue.addEvent(nextEvent); //Ingen break ty ska g�ra samma sak som om den vore full.
+		case FULL:
+			EnterStoreEvent nextCustomer = new EnterStoreEvent(sim,state, startTime+sim.getRandomArrivalTime());
+			queue.addEvent(nextCustomer);
+			break;
+		case CLOSED:
+			break;
 		}
-		
 	}
 
 	@Override
 	public double getStartTime() {
 		return startTime;
-		
 	}
-
 }
+
